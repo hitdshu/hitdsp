@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include "common/register.h"
 
 namespace hitdsp {
@@ -10,11 +11,12 @@ public:
     FftBase() = default;
     virtual ~FftBase() = default;
 
+    virtual void Init(int fft_size, bool forward_flag);
+    template <typename ValueType>
+    virtual void Transform(const ::std::complex<ValueType> input[], ::std::complex<ValueType> output[]);
+
     FftBase(const FftBase &) = delete;
     FftBase &operator=(const FftBase &) = delete;
-
-protected:
-    
 };
 
 HITDSP_REGISTER_REGISTER(FftBase);

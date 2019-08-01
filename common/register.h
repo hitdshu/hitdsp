@@ -18,7 +18,7 @@ public:                                                                         
         static base_class##CreatorRegistry *registry = new base_class##CreatorRegistry();                       \
         return *registry;                                                                                       \
     }                                                                                                           \
-    static void Add##base_class##Creator(const ::std::string &type, base_class##Creator creator) {      \
+    static void Add##base_class##Creator(const ::std::string &type, base_class##Creator creator) {              \
         base_class##CreatorRegistry &registry = Registry();                                                     \
         registry[type] = creator;                                                                               \
     }                                                                                                           \
