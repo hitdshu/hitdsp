@@ -24,7 +24,7 @@ void FftRadix2::Transform(const ::std::complex<float> input[], ::std::complex<fl
         int bstride = 1 << bidx;
         int gn = 1 << (bn_ - 1 - bidx);
         for (int gidx = 0; gidx < gn; ++gidx) {
-            int gstart_idx = gidx * bstride;
+            int gstart_idx = gidx * bstride * 2;
             for (int iidx = 0; iidx < bstride; ++iidx) {
                 ::std::complex<float> tmp = output[gstart_idx + bstride + iidx] * twiddlef_[gn * iidx];
                 output[gstart_idx + bstride + iidx] = output[gstart_idx + iidx] - tmp;
@@ -42,12 +42,12 @@ void FftRadix2::Transform(const ::std::complex<double> input[], ::std::complex<d
         output[idx] = input[reverse_order_[idx]];
     }
     for (int bidx = 0; bidx < bn_; ++bidx) {
-        int bstride = 1 >> bidx;
-        int gn = 1 >> (bn_ - 1 - bidx);
+        int bstride = 1 << bidx;
+        int gn = 1 << (bn_ - 1 - bidx);
         for (int gidx = 0; gidx < gn; ++gidx) {
-            int gstart_idx = gidx * bstride;
+            int gstart_idx = gidx * bstride * 2;
             for (int iidx = 0; iidx < bstride; ++iidx) {
-                ::std::complex<double> tmp = output[gstart_idx + bstride + iidx] * twiddled_[gn * gidx];
+                ::std::complex<double> tmp = output[gstart_idx + bstride + iidx] * twiddled_[gn * iidx];
                 output[gstart_idx + bstride + iidx] = output[gstart_idx + iidx] - tmp;
                 output[gstart_idx + iidx] += tmp;
             }
