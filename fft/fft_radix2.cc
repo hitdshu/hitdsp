@@ -32,6 +32,9 @@ void FftRadix2::Transform(const ::std::complex<float> input[], ::std::complex<fl
             }
         }
     }
+    for (int idx = 0; idx < fft_size_; ++idx) {
+        output[idx] /= ::std::sqrt(fft_size_);
+    }
 }
 
 void FftRadix2::Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) {
@@ -44,11 +47,14 @@ void FftRadix2::Transform(const ::std::complex<double> input[], ::std::complex<d
         for (int gidx = 0; gidx < gn; ++gidx) {
             int gstart_idx = gidx * bstride;
             for (int iidx = 0; iidx < bstride; ++iidx) {
-                ::std::complex<double> tmp = output[gstart_idx + bstride + iidx] * twiddlef_[gn * gidx];
+                ::std::complex<double> tmp = output[gstart_idx + bstride + iidx] * twiddled_[gn * gidx];
                 output[gstart_idx + bstride + iidx] = output[gstart_idx + iidx] - tmp;
                 output[gstart_idx + iidx] += tmp;
             }
         }
+    }
+    for (int idx = 0; idx < fft_size_; ++idx) {
+        output[idx] /= ::std::sqrt(fft_size_);
     }
 }
 

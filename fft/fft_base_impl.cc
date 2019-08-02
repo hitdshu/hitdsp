@@ -11,8 +11,8 @@ void FftBaseImpl::Init(int fft_size, bool forward_flag) {
     twiddled_ = ::std::vector<::std::complex<double>>(fft_size_, ::std::complex<double>());
     int sign = forward_flag_ ? -1 : 1;
     for (int idx = 0; idx < fft_size_; ++idx) {
-        twiddlef_[idx] = ::std::exp(sign * 2 * ::hitdsp::common::PI * idx / fft_size_ * ::std::complex<float>(0, 1)) / ::std::sqrt(fft_size_);
-        twiddled_[idx] = ::std::exp(sign * 2 * ::hitdsp::common::PI * idx / fft_size_ * ::std::complex<double>(0, 1)) / ::std::sqrt(fft_size_);
+        twiddlef_[idx] = ::std::exp((float)(sign * 2 * PI * idx / fft_size_) * ::std::complex<float>(0, 1));
+        twiddled_[idx] = ::std::exp((double)(sign * 2 * PI * idx / fft_size_) * ::std::complex<double>(0, 1));
     }
 }
 
@@ -25,6 +25,9 @@ void FftBaseImpl::Transform(const ::std::complex<float> input[], ::std::complex<
             output[idx1] += input[idx2] * twiddlef_[idx1 * idx2 % fft_size_];
         }
     }
+    for (int idx = 0; idx < fft_size_; ++idx) {
+        output[idx] /= ::std::sqrt(fft_size_);
+    }
 }
 
 void FftBaseImpl::Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) {
@@ -35,6 +38,9 @@ void FftBaseImpl::Transform(const ::std::complex<double> input[], ::std::complex
         for (int idx2 = 0; idx2 < fft_size_; ++idx2) {
             output[idx1] += input[idx2] * twiddled_[idx1 * idx2 % fft_size_];
         }
+    }
+    for (int idx = 0; idx < fft_size_; ++idx) {
+        output[idx] /= ::std::sqrt(fft_size_);
     }
 }
 
