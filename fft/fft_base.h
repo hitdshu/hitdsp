@@ -11,9 +11,9 @@ public:
     FftBase() = default;
     virtual ~FftBase() = default;
 
-    virtual void Init(int fft_size, bool forward_flag);
-    virtual void Transform(const ::std::complex<float> input[], ::std::complex<float> output[]);
-    virtual void Transform(const ::std::complex<double> input[], ::std::complex<double> output[]);
+    virtual void Init(int fft_size, bool forward_flag) = 0;
+    virtual void Transform(const ::std::complex<float> input[], ::std::complex<float> output[]) = 0;
+    virtual void Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) = 0;
 
     FftBase(const FftBase &) = delete;
     FftBase &operator=(const FftBase &) = delete;
