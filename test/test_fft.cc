@@ -1,7 +1,7 @@
 #include "catch/catch.hpp"
 #include "fft/fft_base_impl.h"
 #include "fft/fft_radix2.h"
-#include <iostream>
+#include "fft/fft_radix4.h"
 
 TEST_CASE( "Test base dft implementation", "[fft]") {
     ::hitdsp::fft::FftBaseImpl fft;
@@ -102,4 +102,34 @@ TEST_CASE( "Test radix2 fft implementation", "[fft]") {
     REQUIRE(input[6].imag() == Approx(0.707107));
     REQUIRE(input[7].real() == Approx(1));
     REQUIRE(input[7].imag() == Approx(-4.21468e-08));
+}
+
+TEST_CASE( "Test radix4 fft implementation", "[fft]") {
+    ::hitdsp::fft::FftRadix4 fft;
+    fft.Init(4, true);
+    ::std::complex<float> input[4];
+    ::std::complex<float> output[4];
+    input[0] = ::std::complex<float>(1, 0);
+    input[1] = ::std::complex<float>(0, 0);
+    input[2] = ::std::complex<float>(0, 0);
+    input[3] = ::std::complex<float>(0, 0);
+    fft.Transform(input, output);
+    REQUIRE(output[0].real() == Approx(0.5));
+    REQUIRE(output[0].imag() == Approx(0));
+    REQUIRE(output[1].real() == Approx(0.5));
+    REQUIRE(output[1].imag() == Approx(0));
+    REQUIRE(output[2].real() == Approx(0.5));
+    REQUIRE(output[2].imag() == Approx(0));
+    REQUIRE(output[3].real() == Approx(0.5));
+    REQUIRE(output[3].imag() == Approx(0));
+    fft.Init(4, false);
+    fft.Transform(output, input);
+    REQUIRE(input[0].real() == Approx(1));
+    REQUIRE(input[0].imag() == Approx(0));
+    REQUIRE(input[1].real() == Approx(0));
+    REQUIRE(input[1].imag() == Approx(0));
+    REQUIRE(input[2].real() == Approx(0));
+    REQUIRE(input[2].imag() == Approx(0));
+    REQUIRE(input[3].real() == Approx(0));
+    REQUIRE(input[3].imag() == Approx(0));
 }
