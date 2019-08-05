@@ -2,6 +2,7 @@
 
 #include <complex>
 #include <vector>
+#include "common/register.h"
 
 namespace hitdsp {
 namespace filter {
@@ -11,9 +12,8 @@ public:
     FilterBase() = default;
     virtual ~FilterBase() = default;
 
-    virtual ::std::complex<float> PushAndExecute(const ::std::complex<float> &input) const = 0;
-    virtual ::std::complex<double> PushAndExecute(const ::std::complex<double> &input) const = 0;
-    virtual void BlockExecute(const ::std::vector<::std::complex<float>> inputs[], ::std::vector<::std::complex<float>> outputs[]) const = 0;
+    virtual ::std::complex<float> PushAndExecute(const ::std::complex<float> &input) = 0;
+    virtual ::std::complex<double> PushAndExecute(const ::std::complex<double> &input) = 0;
 
     FilterBase(const FilterBase &) = delete;
     FilterBase &operator=(const FilterBase &) = delete;
