@@ -21,7 +21,7 @@ public:
     FilterFirBase() = default;
     virtual ~FilterFirBase() = default;
 
-    virtual void InitFilterFir(const FilterFirBase &param) = 0;
+    virtual void InitFilterFir(const FilterFirBaseParam &param) = 0;
 
     virtual ::std::complex<float> PushAndExecute(const ::std::complex<float> &input) override;
     virtual ::std::complex<double> PushAndExecute(const ::std::complex<double> &input) override;
