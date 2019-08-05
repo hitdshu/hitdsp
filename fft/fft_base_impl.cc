@@ -16,7 +16,7 @@ void FftBaseImpl::Init(int fft_size, bool forward_flag) {
     }
 }
 
-void FftBaseImpl::Transform(const ::std::complex<float> input[], ::std::complex<float> output[]) {
+void FftBaseImpl::Transform(const ::std::complex<float> input[], ::std::complex<float> output[]) const {
     for (int idx = 0; idx < fft_size_; ++idx) {
         output[idx] = ::std::complex<float>(0, 0);
     }
@@ -30,7 +30,7 @@ void FftBaseImpl::Transform(const ::std::complex<float> input[], ::std::complex<
     }
 }
 
-void FftBaseImpl::Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) {
+void FftBaseImpl::Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) const {
     for (int idx = 0; idx < fft_size_; ++idx) {
         output[idx] = ::std::complex<double>(0, 0);
     }

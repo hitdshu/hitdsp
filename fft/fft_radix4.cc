@@ -17,7 +17,7 @@ void FftRadix4::Init(int fft_size, bool forward_flag) {
 }
 
 
-void FftRadix4::Transform(const ::std::complex<float> input[], ::std::complex<float> output[]) {
+void FftRadix4::Transform(const ::std::complex<float> input[], ::std::complex<float> output[]) const {
     for (int idx = 0; idx < fft_size_; ++idx) {
         output[idx] = input[order_[idx]];
     }
@@ -51,7 +51,7 @@ void FftRadix4::Transform(const ::std::complex<float> input[], ::std::complex<fl
     }
 }
 
-void FftRadix4::Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) {
+void FftRadix4::Transform(const ::std::complex<double> input[], ::std::complex<double> output[]) const {
     for (int idx = 0; idx < fft_size_; ++idx) {
         output[idx] = input[order_[idx]];
     }
