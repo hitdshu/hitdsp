@@ -10,10 +10,38 @@
 namespace hitdsp {
 namespace filter {
 
+enum FilterType {
+    kLowPass = 0,
+    kBandPass,
+    kHighPass,
+    kBandStop,
+    kArbitrary,
+    kFilterTypeNum
+};
+
+enum BandIndicator {
+    kPass = 0,
+    kStop,
+    kTransition,
+    kIndicatorNum
+};
+
 struct FilterFirBaseParam {
-    int tap_len_;
-    ::std::vector<::std::pair<float, float>> bands_;
-    ::std::vector<float> des_response_;
+    FilterType type;
+    int max_tap_len;
+    int block_size;
+    ::std::vector<float> bands;
+    ::std::vector<BandIndicator> indicators;
+    float rp_db;
+    float as_db;
+
+    FilterFirBaseParam() {
+        type = kLowPass;
+        max_tap_len = 100;
+        block_size = 64;
+        rp_db = 0.25;
+        as_db = 50;
+    }
 };
 
 class FilterFirBase : FilterBase {

@@ -25,8 +25,10 @@ void FftBaseImpl::Transform(const ::std::complex<float> input[], ::std::complex<
             output[idx1] += input[idx2] * twiddlef_[idx1 * idx2 % fft_size_];
         }
     }
-    for (int idx = 0; idx < fft_size_; ++idx) {
-        output[idx] /= ::std::sqrt(fft_size_);
+    if (!forward_flag_) {
+        for (int idx = 0; idx < fft_size_; ++idx) {
+            output[idx] /= fft_size_;
+        }
     }
 }
 
@@ -39,8 +41,10 @@ void FftBaseImpl::Transform(const ::std::complex<double> input[], ::std::complex
             output[idx1] += input[idx2] * twiddled_[idx1 * idx2 % fft_size_];
         }
     }
-    for (int idx = 0; idx < fft_size_; ++idx) {
-        output[idx] /= ::std::sqrt(fft_size_);
+    if (!forward_flag_) {
+        for (int idx = 0; idx < fft_size_; ++idx) {
+            output[idx] /= fft_size_;
+        }
     }
 }
 
