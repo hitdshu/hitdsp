@@ -24,5 +24,32 @@ namespace common {
     return result;
 }
 
+int Factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * Factorial(n - 1);
+}
+
+float Izero(float x, int order) {
+    float y = 1;
+    for (int idx = 1; idx < order + 1; ++idx) {
+        y += ::std::pow(::std::pow(x / 2, idx) / Factorial(idx), 2);
+    }
+    return y;
+}
+
+::std::vector<float> Kaiser(int tap_len, float beta) {
+    ::std::vector<float> result;
+    int m = tap_len - 1;
+    float alpha = m / 2;
+    float izero_beta = Izero(beta, 32);
+    for (int idx = 0; idx < tap_len; ++idx) {
+        float tmp = Izero(beta * ::std::sqrt(1 - ::std::pow((idx - alpha) / alpha, 2)), 32) / izero_beta;
+        result.push_back(tmp);
+    }
+    return result;
+}
+
 } // namespace commmon
 } // namespace hitdsp
