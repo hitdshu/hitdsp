@@ -20,8 +20,8 @@ enum FilterType {
 };
 
 enum BandIndicator {
-    kPass = 0,
-    kStop,
+    kStop = 0,
+    kPass,
     kTransition,
     kIndicatorNum
 };
