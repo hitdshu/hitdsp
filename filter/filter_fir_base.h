@@ -50,6 +50,7 @@ public:
     virtual ~FilterFirBase() = default;
 
     virtual void InitFilterFir(const FilterFirBaseParam &param) = 0;
+    virtual void InitFirCoeff(const ::std::complex<float> coeff[], int coeff_size) = 0;
 
     virtual ::std::complex<float> PushAndExecute(const ::std::complex<float> &input) override;
     virtual ::std::complex<double> PushAndExecute(const ::std::complex<double> &input) override;

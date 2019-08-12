@@ -8,7 +8,7 @@ namespace filter {
 class FilterFirExth : public FilterFirBase {
 public:
     virtual void InitFilterFir(const FilterFirBaseParam &param) override {}
-    void InitFirCoeff(const ::std::complex<float> coeff[], int coeff_size);
+    virtual void InitFirCoeff(const ::std::complex<float> coeff[], int coeff_size) override;
 };
 
 } // namespace filter
