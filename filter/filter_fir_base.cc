@@ -63,7 +63,7 @@ void FilterFirBase::BlockExecute(const ::std::complex<double> inputs[], ::std::c
         outputs[idx] = time_bufd_.get()[idx] + overlapd_.get()[idx];
     }
     for (int idx = 0; idx < block_size_; ++idx) {
-        overlapf_[idx] = time_bufd_.get()[idx + block_size_];
+        overlapd_[idx] = time_bufd_.get()[idx + block_size_];
     }
 }
 
