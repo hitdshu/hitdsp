@@ -3,7 +3,7 @@
 #include "fft/fft_radix2.h"
 #include "fft/fft_radix4.h"
 
-TEST_CASE( "Test base dft implementation", "[fft]") {
+TEST_CASE("Test base dft implementation", "[fft]") {
     ::hitdsp::fft::FftBaseImpl fft;
     fft.Init(8, true);
     ::std::complex<float> input[8];
@@ -54,7 +54,7 @@ TEST_CASE( "Test base dft implementation", "[fft]") {
 }
 
 
-TEST_CASE( "Test radix2 fft implementation", "[fft]") {
+TEST_CASE("Test radix2 fft implementation", "[fft]") {
     ::hitdsp::fft::FftRadix2 fft;
     fft.Init(8, true);
     ::std::complex<float> input[8];
@@ -104,7 +104,7 @@ TEST_CASE( "Test radix2 fft implementation", "[fft]") {
     REQUIRE(fabs(input[7].imag()) < 1e-5);
 }
 
-TEST_CASE( "Test radix4 fft implementation", "[fft]") {
+TEST_CASE("Test radix4 fft implementation", "[fft]") {
     ::hitdsp::fft::FftRadix4 fft;
     fft.Init(4, true);
     ::std::complex<float> input[4];
@@ -134,7 +134,7 @@ TEST_CASE( "Test radix4 fft implementation", "[fft]") {
     REQUIRE(fabs(input[3].imag()) < 1e-5);
 }
 
-TEST_CASE( "Test 16 point fft implementation", "[fft]") {
+TEST_CASE("Test 16 point fft implementation", "[fft]") {
     ::hitdsp::fft::FftBaseImpl fft_base;
     fft_base.Init(16, true);
     ::hitdsp::fft::FftRadix2 fft_radix2;

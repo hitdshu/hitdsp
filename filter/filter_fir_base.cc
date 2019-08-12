@@ -9,7 +9,7 @@ namespace filter {
     ::std::complex<float> result(0, 0);
     int fidx = coeff_len_ - 1;
     for (auto iter = data_listf_.begin(); iter != data_listf_.end(); ++iter) {
-        result += (*iter) * coeffsf_[--fidx];
+        result += (*iter) * coeffsf_[fidx--];
     }
     return result;
 }
@@ -20,7 +20,7 @@ namespace filter {
     ::std::complex<double> result(0, 0);
     int fidx = coeff_len_ - 1;
     for (auto iter = data_listd_.begin(); iter != data_listd_.end(); ++iter) {
-        result += (*iter) * coeffsd_[--fidx];
+        result += (*iter) * coeffsd_[fidx--];
     }
     return result;
 }
