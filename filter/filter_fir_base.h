@@ -57,6 +57,21 @@ public:
     virtual void BlockExecute(const ::std::complex<float> inputs[], ::std::complex<float> outputs[]) final;
     virtual void BlockExecute(const ::std::complex<double> inputs[], ::std::complex<double> outputs[]) final;
 
+    ::std::vector<::std::complex<float>> GetCoefff() const {
+        ::std::vector<::std::complex<float>> result;
+        for (int idx = 0; idx < coeff_len_; ++idx) {
+            result.push_back(coeffsf_[idx]);
+        }
+        return result;
+    }
+    ::std::vector<::std::complex<double>> GetCoeffd() const {
+        ::std::vector<::std::complex<double>> result;
+        for (int idx = 0; idx < coeff_len_; ++idx) {
+            result.push_back(coeffsd_[idx]);
+        }
+        return result;
+    }
+
 protected:
     void InitBlockParam(const int &block_size);
 

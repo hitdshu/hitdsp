@@ -17,7 +17,7 @@ void FilterFirKaiserLp::InitFilterFir(const FilterFirBaseParam &param) {
     float wc = (param.bands[0] + param.bands[1]) / 2;
     float delta_w = param.bands[1] - param.bands[0];
     int len = (delta_db - 8) / (2.285 * delta_w) + 1;
-    len += (len % 2) ? 1 : 0;
+    len += (len % 2) ? 0 : 1;
     coeff_len_ = len;
     coeffsf_.reset(new ::std::complex<float>[coeff_len_]);
     coeffsd_.reset(new ::std::complex<double>[coeff_len_]);

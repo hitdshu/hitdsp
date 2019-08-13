@@ -1,5 +1,9 @@
 #include "catch/catch.hpp"
 #include "filter/filter_fir_exth.h"
+#include "filter/filter_fir_hamming_lp.h"
+#include "filter/filter_fir_kaiser_lp.h"
+#include "common/macro.h"
+#include "fft/fft_radix2.h"
 #include <cstdlib>
 #include <random>
 
@@ -61,5 +65,33 @@ TEST_CASE("Test base fft block fir implementation", "[fir]") {
     }
     for (int idx = 0; idx < sap_len; ++idx) {
         REQUIRE(::std::abs(y1[idx] - y2[idx]) < 1e-5);
+    }
+}
+
+TEST_CASE("Test hamming low pass filter", "[fir]") {
+    ::hitdsp::filter::FilterFirBaseParam param;
+    param.bands.push_back(0.25 * PI);
+    param.bands.push_back(0.35 * PI);
+    ::hitdsp::filter::FilterFirHammingLp hamming_lp;
+    hamming_lp.InitFilterFir(param);
+    ::std::vector<::std::complex<float>> coeffs = hamming_lp.GetCoefff();
+    ::hitdsp::fft::FftRadix2 fft;
+    fft.Init(1024, true);
+    ::std::complex<float> input[1024];
+    ::std::complex<float> output[1024];
+    for (int idx = 0; idx < 1024; ++idx) {
+        if (idx < coeffs.size()) {
+            input[idx] = coeffs[idx];
+        } else {
+            input[idx] = 0;
+        }
+    }
+    fft.Transform(input, output);
+    for (int idx = 0; idx < 1024 / 2; ++idx) {
+        if (idx / 1024.0 * 2 * PI < 0.25 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        } else if (idx / 1024.0 * 2 * PI > 0.35 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
+        }
     }
 }
