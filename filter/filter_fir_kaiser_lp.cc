@@ -42,7 +42,7 @@ float FilterFirKaiserLp::EstimateBeta(float delta_db) {
     } else if (delta_db < 50) {
         return 0.5842 * ::std::pow(delta_db - 21, 0.4) + 0.07886 * (delta_db - 21);
     } else {
-        0.1102 * (delta_db - 8.7);
+        return 0.1102 * (delta_db - 8.7);
     }
 }
 

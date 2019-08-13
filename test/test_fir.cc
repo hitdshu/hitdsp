@@ -95,3 +95,31 @@ TEST_CASE("Test hamming low pass filter", "[fir]") {
         }
     }
 }
+
+TEST_CASE("Test kaiser low pass filter", "[fir]") {
+    ::hitdsp::filter::FilterFirBaseParam param;
+    param.bands.push_back(0.25 * PI);
+    param.bands.push_back(0.35 * PI);
+    ::hitdsp::filter::FilterFirKaiserLp kaiser_lp;
+    kaiser_lp.InitFilterFir(param);
+    ::std::vector<::std::complex<float>> coeffs = kaiser_lp.GetCoefff();
+    ::hitdsp::fft::FftRadix2 fft;
+    fft.Init(1024, true);
+    ::std::complex<float> input[1024];
+    ::std::complex<float> output[1024];
+    for (int idx = 0; idx < 1024; ++idx) {
+        if (idx < coeffs.size()) {
+            input[idx] = coeffs[idx];
+        } else {
+            input[idx] = 0;
+        }
+    }
+    fft.Transform(input, output);
+    for (int idx = 0; idx < 1024 / 2; ++idx) {
+        if (idx / 1024.0 * 2 * PI < 0.25 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        } else if (idx / 1024.0 * 2 * PI > 0.35 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
+        }
+    }
+}
