@@ -15,15 +15,15 @@ void FilterFirKaiser::InitFilterFir(const FilterFirBaseParam &param) {
     float beta = EstimateBeta(delta_db);
     std::vector<float> wcs;
     std::vector<BandIndicator> ids;
-    float delta_w = 0;
+    float delta_w = 1e5;
     for (int idx = 0; idx < param.bands.size(); ++idx) {
         if (param.indicators[idx] == kPass || param.indicators[idx] == kStop) {
             float wc_tmp = (param.bands[idx] + param.bands[::std::min(idx + 1, (int)param.bands.size() - 1)]) / 2.0;
             wcs.push_back(wc_tmp);
             ids.push_back(param.indicators[idx]);
         } else {
-            float prev_wc = idx == 0 ? 0 : param.bands[idx - 1];
-            delta_w = ::std::max(delta_w, param.bands[idx] - prev_wc);
+            float prev_wc = (idx == 0) ? 0 : param.bands[idx - 1];
+            delta_w = ::std::min(delta_w, param.bands[idx] - prev_wc);
         }
     }
     int len = (delta_db - 8) / (2.285 * delta_w) + 1;
@@ -63,7 +63,7 @@ float FilterFirKaiser::EstimateBeta(float delta_db) {
     } else if (delta_db < 50) {
         return 0.5842 * ::std::pow(delta_db - 21, 0.4) + 0.07886 * (delta_db - 21);
     } else {
-        0.1102 * (delta_db - 8.7);
+        return 0.1102 * (delta_db - 8.7);
     }
 }
 

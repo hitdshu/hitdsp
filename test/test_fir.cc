@@ -2,6 +2,7 @@
 #include "filter/filter_fir_exth.h"
 #include "filter/filter_fir_hamming_lp.h"
 #include "filter/filter_fir_kaiser_lp.h"
+#include "filter/filter_fir_kaiser.h"
 #include "common/macro.h"
 #include "fft/fft_radix2.h"
 #include <cstdlib>
@@ -120,6 +121,111 @@ TEST_CASE("Test kaiser low pass filter", "[fir]") {
             REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
         } else if (idx / 1024.0 * 2 * PI > 0.35 * PI) {
             REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
+        }
+    }
+}
+
+TEST_CASE("Test kaiser arbitrary filter with low pass requirement", "[fir]") {
+    ::hitdsp::filter::FilterFirBaseParam param;
+    param.bands.push_back(0.25 * PI);
+    param.bands.push_back(0.35 * PI);
+    param.indicators.push_back(::hitdsp::filter::kPass);
+    param.indicators.push_back(::hitdsp::filter::kTransition);
+    ::hitdsp::filter::FilterFirKaiser kaiser;
+    kaiser.InitFilterFir(param);
+    ::std::vector<::std::complex<float>> coeffs = kaiser.GetCoefff();
+    ::hitdsp::fft::FftRadix2 fft;
+    fft.Init(1024, true);
+    ::std::complex<float> input[1024];
+    ::std::complex<float> output[1024];
+    for (int idx = 0; idx < 1024; ++idx) {
+        if (idx < coeffs.size()) {
+            input[idx] = coeffs[idx];
+        } else {
+            input[idx] = 0;
+        }
+    }
+    fft.Transform(input, output);
+    for (int idx = 0; idx < 1024 / 2; ++idx) {
+        if (idx / 1024.0 * 2 * PI < 0.25 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        } else if (idx / 1024.0 * 2 * PI > 0.35 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
+        }
+    }
+}
+
+TEST_CASE("Test kaiser arbitrary filter with high pass requirement", "[fir]") {
+    ::hitdsp::filter::FilterFirBaseParam param;
+    param.type = ::hitdsp::filter::kArbitrary;
+    param.bands.push_back(0.25 * PI);
+    param.bands.push_back(0.35 * PI);
+    param.bands.push_back(PI);
+    param.indicators.push_back(::hitdsp::filter::kStop);
+    param.indicators.push_back(::hitdsp::filter::kTransition);
+    param.indicators.push_back(::hitdsp::filter::kPass);
+    ::hitdsp::filter::FilterFirKaiser kaiser;
+    kaiser.InitFilterFir(param);
+    ::std::vector<::std::complex<float>> coeffs = kaiser.GetCoefff();
+    ::hitdsp::fft::FftRadix2 fft;
+    fft.Init(1024, true);
+    ::std::complex<float> input[1024];
+    ::std::complex<float> output[1024];
+    for (int idx = 0; idx < 1024; ++idx) {
+        if (idx < coeffs.size()) {
+            input[idx] = coeffs[idx];
+        } else {
+            input[idx] = 0;
+        }
+    }
+    fft.Transform(input, output);
+    for (int idx = 0; idx < 1024 / 2; ++idx) {
+        if (idx / 1024.0 * 2 * PI < 0.25 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
+        } else if (idx / 1024.0 * 2 * PI > 0.35 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        }
+    }
+}
+
+TEST_CASE("Test kaiser arbitrary filter with multi-band pass requirement", "[fir]") {
+    ::hitdsp::filter::FilterFirBaseParam param;
+    param.type = ::hitdsp::filter::kArbitrary;
+    param.bands.push_back(0.2 * PI);
+    param.bands.push_back(0.3 * PI);
+    param.bands.push_back(0.5 * PI);
+    param.bands.push_back(0.6 * PI);
+    param.bands.push_back(0.8 * PI);
+    param.bands.push_back(0.9 * PI);
+    param.indicators.push_back(::hitdsp::filter::kPass);
+    param.indicators.push_back(::hitdsp::filter::kTransition);
+    param.indicators.push_back(::hitdsp::filter::kStop);
+    param.indicators.push_back(::hitdsp::filter::kTransition);
+    param.indicators.push_back(::hitdsp::filter::kPass);
+    param.indicators.push_back(::hitdsp::filter::kTransition);
+    ::hitdsp::filter::FilterFirKaiser kaiser;
+    kaiser.InitFilterFir(param);
+    ::std::vector<::std::complex<float>> coeffs = kaiser.GetCoefff();
+    ::hitdsp::fft::FftRadix2 fft;
+    fft.Init(1024, true);
+    ::std::complex<float> input[1024];
+    ::std::complex<float> output[1024];
+    for (int idx = 0; idx < 1024; ++idx) {
+        if (idx < coeffs.size()) {
+            input[idx] = coeffs[idx];
+        } else {
+            input[idx] = 0;
+        }
+    }
+    fft.Transform(input, output);
+    for (int idx = 0; idx < 1024 / 2; ++idx) {
+        float theta = idx / 1024.0 * 2 * PI;
+        if (theta < 0.2 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        } else if (theta > 0.3 * PI && theta < 0.5 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
+        } else if (theta > 0.6 * PI && theta < 0.8 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
         }
     }
 }
