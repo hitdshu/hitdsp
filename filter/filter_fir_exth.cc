@@ -20,5 +20,7 @@ void FilterFirExth::InitFirCoeff(const ::std::complex<float> coeff[], int coeff_
     InitBlockParam(block_size);
 }
 
+HITDSP_REGISTER_FILTER(FilterFirExth);
+
 } // namespace filter
 } // namespace hitdsp

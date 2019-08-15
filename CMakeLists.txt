@@ -11,11 +11,13 @@ ${PROJECT_SOURCE_DIR}
 file(GLOB COMMON_CC "${PROJECT_SOURCE_DIR}/common/*.cc")
 file(GLOB FFT_CC "${PROJECT_SOURCE_DIR}/fft/*.cc")
 file(GLOB FILTER_CC "${PROJECT_SOURCE_DIR}/filter/*.cc")
+file(GLOB MODEM_CC "${PROJECT_SOURCE_DIR}/modem/*.cc")
 
 add_library(${PROJECT_NAME} SHARED
 ${COMMON_CC}
 ${FFT_CC}
 ${FILTER_CC}
+${MODEM_CC}
 )
 
 target_link_libraries(${PROJECT_NAME}

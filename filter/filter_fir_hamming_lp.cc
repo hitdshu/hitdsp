@@ -36,5 +36,7 @@ void FilterFirHammingLp::InitFilterFir(const FilterFirBaseParam &param) {
     InitBlockParam(block_size);
 }
 
+HITDSP_REGISTER_FILTER(FilterFirHammingLp);
+
 } // namespace filter
 } // namespace hitdsp

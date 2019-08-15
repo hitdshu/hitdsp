@@ -44,7 +44,7 @@ struct FilterFirBaseParam {
     }
 };
 
-class FilterFirBase : FilterBase {
+class FilterFirBase : public FilterBase {
 public:
     FilterFirBase() = default;
     virtual ~FilterFirBase() = default;

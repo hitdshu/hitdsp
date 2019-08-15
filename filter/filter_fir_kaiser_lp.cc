@@ -46,5 +46,7 @@ float FilterFirKaiserLp::EstimateBeta(float delta_db) {
     }
 }
 
+HITDSP_REGISTER_FILTER(FilterFirKaiserLp);
+
 } // namespace filter
 } // namespace hitdsp
