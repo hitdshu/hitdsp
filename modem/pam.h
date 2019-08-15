@@ -12,7 +12,7 @@ class Pam {
 public:
     Pam(float avg_eg = 1.0) {
         biase_ = (1 << nbits) - 1;
-        scale_ = ::std::sqrt(3 * avg_eg / ((1 << (nbits + 1)) - 1));
+        scale_ = ::std::sqrt(3 * avg_eg / ((1 << (nbits * 2)) - 1));
     }
 
     float Encode(const uint8_t *bits) const {
@@ -22,9 +22,9 @@ public:
             uint8_t cur_bit = bits[idx];
             uint8_t ori_bit = cur_bit ^ pre_bit;
             pre_bit = ori_bit;
-            pt = pt << 1 + ori_bit;
+            pt = (pt << 1) + ori_bit;
         }
-        pt = pt << 1 - biase_;
+        pt = (pt << 1) - biase_;
         return (float)pt * scale_;
     }
     ::std::vector<uint8_t> DecodeHard(float sym) const {
