@@ -3,6 +3,7 @@
 #include "common/register.h"
 #include <complex>
 #include <string>
+#include <vector>
 
 namespace hitdsp {
 namespace modem {
@@ -26,8 +27,8 @@ public:
         csize_ = param.csize;
     }
 
-    virtual ::std::complex<float> Modulate(const uint8_t &bits) = 0;
-    virtual uint8_t Demodulate(const ::std::complex<float> &sym) = 0;
+    virtual ::std::complex<float> Modulate(const ::std::vector<uint8_t> &bits) = 0;
+    virtual ::std::vector<uint8_t> Demodulate(const ::std::complex<float> &sym) = 0;
     virtual ::std::string Name() const = 0;
 
     ModemBase(const ModemBase &) = delete;
