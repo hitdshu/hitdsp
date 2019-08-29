@@ -40,6 +40,7 @@ public:
     uint8_t Inv(uint8_t x) const {
         return exp_[255 - log_[x]];
     }
+    
     uint8_t MulNoLUT(uint8_t x, uint8_t y) const;
 
 protected:

@@ -1,5 +1,6 @@
 #include "catch/catch.hpp"
 #include "ecc/gf28.h"
+#include "ecc/poly.h"
 
 TEST_CASE("Test base gf28 implementation", "[gf28]") {
     ::hitdsp::ecc::Gf28 gf28;
@@ -20,4 +21,19 @@ TEST_CASE("Test base gf28 implementation", "[gf28]") {
     REQUIRE(y_result == y);
     uint8_t x_inv = gf28.Inv(x);
     REQUIRE(gf28.Mul(x, x_inv) == 1);
+}
+
+TEST_CASE("Test base poly implementation", "[gf28]") {
+    ::std::vector<uint8_t> coeffs_x = {0x12, 0x34, 0x56, 0x00, 0x00, 0x00, 0x00};
+    ::std::vector<uint8_t> coeffs_y = {0x01, 0x0f, 0x36, 0x78, 0x40};
+    ::hitdsp::ecc::Poly poly_x(&coeffs_x[0], 6);
+    ::hitdsp::ecc::Poly poly_y(&coeffs_y[0], 4);
+    ::hitdsp::ecc::Poly quot = poly_x.Div(poly_y);
+    REQUIRE(poly_x.GetCoeff(0) == 0x37);
+    REQUIRE(poly_x.GetCoeff(1) == 0xe6);
+    REQUIRE(poly_x.GetCoeff(2) == 0x78);
+    REQUIRE(poly_x.GetCoeff(3) == 0xd9);
+    REQUIRE(quot.GetCoeff(0) == 0x12);
+    REQUIRE(quot.GetCoeff(1) == 0xda);
+    REQUIRE(quot.GetCoeff(2) == 0xdf);
 }
