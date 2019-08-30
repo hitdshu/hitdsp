@@ -17,14 +17,6 @@ public:
         }
     }
 
-    uint8_t GetCoeff(int idx) const {
-        if (idx < poly_.size()) {
-            return poly_[idx];
-        } else {
-            return 0;
-        }
-    }
-
     void MultScalar(uint8_t x);
     uint8_t EvaluateAt(uint8_t x);
 
@@ -41,6 +33,13 @@ public:
             ::std::cout << ::std::hex << (int)poly_[idx];
         }
         ::std::cout << "]" << ::std::endl;
+    }
+
+    uint8_t &operator[](int pidx) {
+        return poly_[pidx];
+    }
+    uint8_t operator[](int pidx) const {
+        return poly_[pidx];
     }
 
 protected:

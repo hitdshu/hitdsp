@@ -1,6 +1,7 @@
 #include "catch/catch.hpp"
 #include "ecc/gf28.h"
 #include "ecc/poly.h"
+#include "ecc/reed_solomon.h"
 
 TEST_CASE("Test base gf28 implementation", "[gf28]") {
     ::hitdsp::ecc::Gf28 gf28;
@@ -29,11 +30,22 @@ TEST_CASE("Test base poly implementation", "[gf28]") {
     ::hitdsp::ecc::Poly poly_x(&coeffs_x[0], 6);
     ::hitdsp::ecc::Poly poly_y(&coeffs_y[0], 4);
     ::hitdsp::ecc::Poly quot = poly_x.Div(poly_y);
-    REQUIRE(poly_x.GetCoeff(0) == 0x37);
-    REQUIRE(poly_x.GetCoeff(1) == 0xe6);
-    REQUIRE(poly_x.GetCoeff(2) == 0x78);
-    REQUIRE(poly_x.GetCoeff(3) == 0xd9);
-    REQUIRE(quot.GetCoeff(0) == 0x12);
-    REQUIRE(quot.GetCoeff(1) == 0xda);
-    REQUIRE(quot.GetCoeff(2) == 0xdf);
+    REQUIRE(poly_x[0] == 0x37);
+    REQUIRE(poly_x[1] == 0xe6);
+    REQUIRE(poly_x[2] == 0x78);
+    REQUIRE(poly_x[3] == 0xd9);
+    REQUIRE(quot[0] == 0x12);
+    REQUIRE(quot[1] == 0xda);
+    REQUIRE(quot[2] == 0xdf);
+}
+
+TEST_CASE("Test base reed solomon encoder implementation", "[gf28]") {
+    ::std::vector<uint8_t> msg_in = {0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec};
+    ::hitdsp::ecc::ReedSolomon rs(16, 10);
+    ::std::vector<uint8_t> msg_out(26);
+    rs.Encode(&msg_in[0], &msg_out[0]);
+    REQUIRE(msg_out[0] == 0x40);
+    REQUIRE(msg_out[1] == 0xd2);
+    REQUIRE(msg_out[24] == 0x4b);
+    REQUIRE(msg_out[25] == 0xe0);
 }
