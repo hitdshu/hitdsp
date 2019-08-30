@@ -41,6 +41,9 @@ public:
     uint8_t operator[](int pidx) const {
         return poly_[pidx];
     }
+    ::std::vector<uint8_t> GetPoly() const {
+        return poly_;
+    }
 
 protected:
     ::std::vector<uint8_t> poly_; // Descending order

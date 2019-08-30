@@ -39,7 +39,7 @@ TEST_CASE("Test base poly implementation", "[gf28]") {
     REQUIRE(quot[2] == 0xdf);
 }
 
-TEST_CASE("Test base reed solomon encoder implementation", "[gf28]") {
+TEST_CASE("Test base reed solomon encoder/decoder implementation", "[gf28]") {
     ::std::vector<uint8_t> msg_in = {0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec};
     ::hitdsp::ecc::ReedSolomon rs(16, 10);
     ::std::vector<uint8_t> msg_out(26);
@@ -48,4 +48,12 @@ TEST_CASE("Test base reed solomon encoder implementation", "[gf28]") {
     REQUIRE(msg_out[1] == 0xd2);
     REQUIRE(msg_out[24] == 0x4b);
     REQUIRE(msg_out[25] == 0xe0);
+    msg_out[0] = 6;
+    msg_out[10] = 7;
+    msg_out[20] = 8;
+    ::std::vector<uint8_t> msg_dec(msg_in.size(), 0);
+    rs.Decode(&msg_out[0], &msg_dec[0]);
+    for (int idx = 0; idx < msg_in.size(); ++idx) {
+        REQUIRE(msg_in[idx] == msg_dec[idx]);
+    }
 }
