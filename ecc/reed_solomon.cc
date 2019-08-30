@@ -34,11 +34,17 @@ void ReedSolomon::Encode(const uint8_t *input, uint8_t *output) {
 void ReedSolomon::Decode(const uint8_t *input, uint8_t *output) {
     ::std::vector<uint8_t> synds = CalcSyndromes(input);
     ::std::vector<uint8_t> err_loc = FindErrorLocator(synds);
+    if (err_loc.size() == 0) {
+        CopyInput(input, output);
+    }
     ::std::vector<uint8_t> err_loc_inv(err_loc.size(), 0);
     for (int idx = 0; idx < err_loc_inv.size(); ++idx) {
         err_loc_inv[idx] = err_loc[err_loc_inv.size() - 1 - idx];
     }
     ::std::vector<uint8_t> err_pos = FindErrors(err_loc_inv);
+    if (err_pos.size() == 0) {
+        CopyInput(input, output);
+    }
     CorrectErrata(input, synds, err_pos, output);
 }
 
@@ -86,6 +92,9 @@ bool ReedSolomon::Check(const uint8_t *input) {
             err_loc = err_poly.GetPoly();
         }
     }
+    if (2 * err_loc.size() >= ngen_) {
+        return ::std::vector<uint8_t>();
+    }
     return err_loc;
 }
 
@@ -96,6 +105,9 @@ bool ReedSolomon::Check(const uint8_t *input) {
         if (0 == err_poly.EvaluateAt(gf_.Pow(2, idx))) {
             err_pos.push_back(ngen_ + nmsg_ - 1 - idx);
         }
+    }
+    if (err_loc.size() - 1 != err_pos.size()) {
+        return ::std::vector<uint8_t>();
     }
     return err_pos;
 }

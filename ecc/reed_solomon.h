@@ -22,6 +22,11 @@ protected:
     ::std::vector<uint8_t> FindErrataLocator(const ::std::vector<uint8_t> &err_pos);
     ::std::vector<uint8_t> FindErrorEvaluator(const ::std::vector<uint8_t> &synds, const ::std::vector<uint8_t> &err_loc, int nsym);
     void CorrectErrata(const uint8_t *input, const ::std::vector<uint8_t> &synds, const ::std::vector<uint8_t> &err_pos, uint8_t *output);
+    void CopyInput(const uint8_t *input, uint8_t *output) {
+        for (int idx = 0; idx < nmsg_; ++idx) {
+            output[idx] = input[idx];
+        }
+    }
 
     Poly generator_;
     Poly message_;
