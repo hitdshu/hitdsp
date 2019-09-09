@@ -6,7 +6,7 @@
 namespace hitdsp {
 namespace ecc {
 
-Conv::Conv(int nmem, int rate, const int *polys, bool soft_dec) {
+void Conv::Init(int nmem, int rate, const int *polys, bool soft_dec) {
     soft_dec_ = soft_dec;
     nmem_ = nmem;
     rate_ = rate;
@@ -110,6 +110,8 @@ void Conv::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
         min_state = (min_state >> 1) + (pop_out_bit << (nmem_ - 1));
     }
 }
+
+HITDSP_REGISTER_BED(Conv);
 
 } // namespace ecc
 } // namespace hitdsp
