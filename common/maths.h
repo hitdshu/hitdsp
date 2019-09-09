@@ -21,5 +21,7 @@ float Izero(float x, int order);
 float ComplexAbs(const ::std::complex<float> &val);
 double ComplexAbs(const ::std::complex<double> &val);
 
+int Parity(int x);
+
 } // namespace common
 } // namespace hitdsp
