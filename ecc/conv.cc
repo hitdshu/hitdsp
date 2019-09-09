@@ -17,10 +17,9 @@ void Conv::Init(int nmem, int rate, const int *polys, bool soft_dec) {
 
 void Conv::Encode(const uint8_t *data, uint8_t *symbols, int data_bits) {
     assert(data_bits > 3 * nmem_);
-    int out_symb_count = rate_ * (data_bits + nmem_);
     int out_index = 0;
     int sr = 0;
-    for (int idx = 0; idx < out_symb_count; ++idx) {
+    for (int idx = 0; idx < data_bits + nmem_; ++idx) {
         int b = data[idx / 8];
         int j = idx % 8;
         int bit = (b >> (7 - j)) & 1;
