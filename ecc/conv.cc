@@ -16,7 +16,7 @@ void Conv::Init(int nmem, int rate, const int *polys, bool soft_dec) {
 }
 
 void Conv::Encode(const uint8_t *data, uint8_t *symbols, int data_bits) {
-    assert(data_bits > 5 * nmem_);
+    assert(data_bits > 3 * nmem_);
     int out_symb_count = rate_ * (data_bits + nmem_);
     int out_index = 0;
     int sr = 0;
@@ -34,7 +34,7 @@ void Conv::Encode(const uint8_t *data, uint8_t *symbols, int data_bits) {
 }
 
 void Conv::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
-    assert(data_bits > 5 * nmem_);
+    assert(data_bits > 3 * nmem_);
     int total_symb_count = rate_ * (data_bits + nmem_);
     int total_states_num = 1 << nmem_;
     int total_states_num_half = 1 << (nmem_ - 1);
@@ -47,6 +47,7 @@ void Conv::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
     ::std::vector<double> cost_prev_(total_states_num, 1e8);
     ::std::vector<double> cost_cur_(total_states_num, 0);
     ::std::vector<int> state_ind(total_states_num * (data_bits + nmem_), 0);
+    ::std::vector<int> data_dec(data_bits, 0);
     cost_prev_[0] = 0;
     for (int idx = 0; idx < data_bits; ++idx) {
         for (int sidx = 0; sidx < total_states_num; ++sidx) {
@@ -74,6 +75,7 @@ void Conv::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
             cost_prev_[sidx] = cost_cur_[sidx];
         }
     }
+    int min_state = 0;
     for (int idx = 0; idx < nmem_; ++idx) {
         for (int sidx = 0; sidx < total_states_num; ++sidx) {
             int cur_in_bit = sidx & 1;
@@ -85,12 +87,12 @@ void Conv::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
                 int m1 = ((last_state1 << 1) + cur_in_bit) & polys_[ridx];
                 int par1 = ::hitdsp::common::Parity(m1);
                 double ro1 = par1 ? bit1 : bit0;
-                double tmp_cost1 = ::std::pow(ro1 - (double)symbols[idx * rate_ + ridx], 2);
+                double tmp_cost1 = ::std::pow(ro1 - (double)symbols[(idx + data_bits) * rate_ + ridx], 2);
                 cur_cost1 += tmp_cost1;
                 int m2 = ((last_state2 << 1) + cur_in_bit) & polys_[ridx];
                 int par2 = ::hitdsp::common::Parity(m2);
                 double ro2 = par2 ? bit1 : bit0;
-                double tmp_cost2 = ::std::pow(ro2 - (double)symbols[idx * rate_ + ridx], 2);
+                double tmp_cost2 = ::std::pow(ro2 - (double)symbols[(idx + data_bits) * rate_ + ridx], 2);
                 cur_cost2 += tmp_cost2;
             }
             cost_cur_[sidx] = ::std::min(cur_cost1, cur_cost2);
@@ -102,12 +104,28 @@ void Conv::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
         for (int sidx = 0; sidx < total_states_num; ++sidx) {
             cost_prev_[sidx] = cost_cur_[sidx];
         }
+        if (nmem_ - 1 == idx) {
+            double cost_min = 1e10;
+            for (int sidx = 0; sidx < total_states_num; ++sidx) {
+                if (cost_prev_[sidx] < cost_min) {
+                    cost_min = cost_prev_[sidx];
+                    min_state = sidx;
+                }
+            }
+        }
     }
-    int min_state = 0;
     for (int idx = data_bits + nmem_ - 1; idx >= nmem_; --idx) {
-        int pop_out_bit = state_ind[idx];
-        data[idx - nmem_] = pop_out_bit;
+        int pop_out_bit = state_ind[idx * total_states_num + min_state];
+        data_dec[idx - nmem_] = pop_out_bit;
         min_state = (min_state >> 1) + (pop_out_bit << (nmem_ - 1));
+    }
+    for (int idx = 0; idx < (data_bits + 7) / 8; ++idx) {
+        data[idx] = 0;
+    }
+    for (int idx = 0; idx < data_bits; ++idx) {
+        if (data_dec[idx]) {
+            data[idx / 8] ^= 1 << (7 - (idx % 8));
+        }
     }
 }
 
