@@ -3,6 +3,7 @@
 #include "filter/filter_fir_hamming_lp.h"
 #include "filter/filter_fir_kaiser_lp.h"
 #include "filter/filter_fir_kaiser.h"
+#include "filter/filter_halfband.h"
 #include "common/macro.h"
 #include "fft/fft_radix2.h"
 #include <cstdlib>
@@ -226,6 +227,33 @@ TEST_CASE("Test kaiser arbitrary filter with multi-band pass requirement", "[fir
             REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
         } else if (theta > 0.6 * PI && theta < 0.8 * PI) {
             REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        }
+    }
+}
+
+TEST_CASE("Test halfband low pass filter", "[fir]") {
+    ::hitdsp::filter::FilterFirBaseParam param;
+    param.max_tap_len = 43;
+    ::hitdsp::filter::FilterHalfband halfband;
+    halfband.InitFilterFir(param);
+    ::std::vector<::std::complex<float>> coeffs = halfband.GetCoefff();
+    ::hitdsp::fft::FftRadix2 fft;
+    fft.Init(1024, true);
+    ::std::complex<float> input[1024];
+    ::std::complex<float> output[1024];
+    for (int idx = 0; idx < 1024; ++idx) {
+        if (idx < coeffs.size()) {
+            input[idx] = coeffs[idx];
+        } else {
+            input[idx] = 0;
+        }
+    }
+    fft.Transform(input, output);
+    for (int idx = 0; idx < 1024 / 2; ++idx) {
+        if (idx / 1024.0 * 2 * PI < 0.42 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)1.0) < 1e-2);
+        } else if (idx / 1024.0 * 2 * PI > 0.58 * PI) {
+            REQUIRE(::std::abs(::std::abs(output[idx]) - (float)0.0) < 1e-2);
         }
     }
 }
