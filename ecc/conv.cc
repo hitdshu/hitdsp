@@ -20,9 +20,14 @@ void Conv::Encode(const uint8_t *data, uint8_t *symbols, int data_bits) {
     int out_index = 0;
     int sr = 0;
     for (int idx = 0; idx < data_bits + nmem_; ++idx) {
-        int b = data[idx / 8];
-        int j = idx % 8;
-        int bit = (b >> (7 - j)) & 1;
+        int bit;
+        if (idx < data_bits) {
+            int b = data[idx / 8];
+            int j = idx % 8;
+            bit = (b >> (7 - j)) & 1;
+        } else {
+            bit = 0;
+        }
         sr = (sr << 1) | bit;
         for (int ridx = 0; ridx < rate_; ++ridx) {
             int m = sr & polys_[ridx];
