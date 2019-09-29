@@ -49,7 +49,6 @@ public:
     }
     ::std::vector<uint8_t> DecodeHard(float sym) const {
         ::std::vector<uint8_t> result;
-        result.reserve(nbits);
         sym = (sym / scale_ + biase_) / 2.0;
         int sym_int = std::round(sym);
         if (sym_int < 0) {
@@ -114,8 +113,7 @@ uint64_t Pam<nbits>::Bits2Symbol(const uint8_t *bits) const {
 
 template <int nbits>
 ::std::vector<uint8_t> Pam<nbits>::Symbol2Bits(uint64_t symb) const {
-    ::std::vector<uint8_t> result;
-    result.reserve(nbits);
+    ::std::vector<uint8_t> result(nbits, 0);
     for (int idx = 0; idx < nbits; ++idx) {
         result[nbits - 1 - idx] = symb % 2;
         symb = symb >> 1;

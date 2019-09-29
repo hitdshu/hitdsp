@@ -13,6 +13,7 @@ public:
 
     virtual void Encode(const uint8_t *data, uint8_t *symbols, int data_bits) = 0;
     virtual void Decode(const uint8_t *symbols, uint8_t *data, int data_bits) = 0;
+    virtual void Decode(const float *symbols, uint8_t *data, int data_bits) = 0;
 
     BedBase(const BedBase &) = delete;
     BedBase &operator=(const BedBase &) = delete;
