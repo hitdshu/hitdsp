@@ -23,6 +23,15 @@ public:
     virtual ::std::vector<uint8_t> Demodulate(const ::std::complex<float> &sym) override {
         return pam2_->DecodeHard(sym.real());
     }
+    virtual ::std::vector<float> DemodulateLlr(const ::std::complex<float> &sym) override {
+        return pam2_->DecodeSoftLlr(sym.real());
+    }
+    virtual float GetLlrNp() override {
+        return pam2_->GetNoisePower();
+    }
+    virtual void SetLlrNp(float np) {
+        pam2_->SetNoisePower(np);
+    }
     virtual ::std::string Name() const override {
         return "BPSK";
     }

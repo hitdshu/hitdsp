@@ -29,6 +29,9 @@ public:
 
     virtual ::std::complex<float> Modulate(const ::std::vector<uint8_t> &bits) = 0;
     virtual ::std::vector<uint8_t> Demodulate(const ::std::complex<float> &sym) = 0;
+    virtual ::std::vector<float> DemodulateLlr(const ::std::complex<float> &sym) = 0;
+    virtual float GetLlrNp() = 0;
+    virtual void SetLlrNp(float np) = 0;
     virtual ::std::string Name() const = 0;
 
     ModemBase(const ModemBase &) = delete;

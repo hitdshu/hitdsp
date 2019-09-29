@@ -32,6 +32,24 @@ public:
         }
         return result;
     }
+    virtual ::std::vector<float> DemodulateLlr(const ::std::complex<float> &sym) override {
+        ::std::vector<float> result;
+        ::std::vector<float> result1 = pam8_->DecodeSoftLlr(sym.real());
+        ::std::vector<float> result2 = pam8_->DecodeSoftLlr(sym.imag());
+        for (size_t idx = 0; idx < result1.size(); ++idx) {
+            result.push_back(result1[idx]);
+        }
+        for (size_t idx = 0; idx < result2.size(); ++idx) {
+            result.push_back(result2[idx]);
+        }
+        return result;
+    }
+    virtual float GetLlrNp() override {
+        return pam8_->GetNoisePower();
+    }
+    virtual void SetLlrNp(float np) {
+        pam8_->SetNoisePower(np);
+    }
     virtual ::std::string Name() const override {
         return "64QAM";
     }
