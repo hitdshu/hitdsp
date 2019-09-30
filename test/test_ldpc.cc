@@ -1,5 +1,7 @@
 #include "catch/catch.hpp"
 #include "ecc/ldpc.h"
+#include "modem/modem_bpsk.h"
+#include <random>
 
 TEST_CASE("Test ldpc encode implementation", "[ldpc]") {
     ::hitdsp::ecc::Ldpc ldpc;
@@ -51,4 +53,72 @@ TEST_CASE("Test ldpc encode implementation", "[ldpc]") {
         REQUIRE(true_cw_bits3[idx] == cw_bits3[idx]);
     }
     REQUIRE(ldpc.CheckLdpc(&cw_bits3[0]));
+}
+
+TEST_CASE("Test ldpc decoder implementation", "[ldpc]") {
+    ::hitdsp::ecc::Ldpc ldpc;
+    ::std::vector<::std::vector<int>> base_graph = {{0, -1, -1, -1, 0, 0, -1, -1, 0, -1, -1, 0, 1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, 
+        {22, 0, -1, -1, 17, -1, 0, 0, 12, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1}, 
+        {6, -1, 0, -1, 10, -1, -1, -1, 24, -1, 0, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1}, 
+        {2, -1, -1, 0, 20, -1, -1, -1, 25, 0, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1, -1}, 
+        {23, -1, -1, -1, 3, -1, -1, -1, 0, -1, 9, 11, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1}, 
+        {24, -1, 23, 1, 17, -1, 3, -1, 10, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1}, 
+        {25, -1, -1, -1, 8, -1, -1, -1, 7, 18, -1, -1, 0, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1}, 
+        {13, 24, -1, -1, 0, -1, 8, -1, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1}, 
+        {7, 20, -1, 16, 22, 10, -1, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1}, 
+        {11, -1, -1, -1, 19, -1, -1, -1, 13, -1, 3, 17, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1}, 
+        {25, -1, 8, -1, 23, 18, -1, 14, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0}, 
+        {3, -1, -1, -1, 16, -1, -1, 2, 25, 5, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0}};
+    int m = base_graph.size();
+    int n = base_graph[0].size();
+    int k = n - m;
+    int z = 27;
+    float rate = (float)k / (float)n;
+    float ebno_db = 3;
+    float ebno = ::std::pow(10, ebno_db / 10.0);
+    float sigma = ::std::sqrt(1.0 / (2 * rate * ebno));
+    ::std::default_random_engine generator;
+    ::std::normal_distribution<float> noise(0, sigma);
+    int exp_num = 1000;
+    ldpc.Init(base_graph, z);
+    ::hitdsp::modem::ModemBpsk bpsk;
+    ::hitdsp::modem::ModemParam param(1);
+    bpsk.InitModem(param);
+    ::std::vector<uint8_t> msg_bits(k * z, 0);
+    ::std::vector<uint8_t> dec_bits(k * z, 0);
+    ::std::vector<uint8_t> cw_bits(n * z, 0);
+    int total_bits = 0;
+    int correct_bits = 0;
+    int total_blocks = 0;
+    int correct_blocks = 0;
+    for (int eidx = 0; eidx < exp_num; ++eidx) {
+        for (int bidx = 0; bidx < k * z; ++bidx) {
+            msg_bits[bidx] = noise(generator) > 0 ? 1 : 0;
+        }
+        ldpc.Encode(&msg_bits[0], &cw_bits[0]);
+        ::std::vector<float> llr;
+        for (size_t idx = 0; idx < cw_bits.size(); ++idx) {
+            ::std::vector<uint8_t> bitt;
+            bitt.push_back(cw_bits[idx]);
+            ::std::complex<float> st = bpsk.Modulate(bitt);
+            st += ::std::complex<float>(noise(generator), noise(generator));
+            ::std::vector<float> lrt = bpsk.DemodulateLlr(st);
+            llr.push_back(lrt[0]);
+        }
+        ldpc.Decode(&llr[0], &dec_bits[0]);
+        bool has_wrong_bit = false;
+        for (int idx = 0; idx < k * z; ++idx) {
+            total_bits++;
+            if (dec_bits[idx] == msg_bits[idx]) {
+                correct_bits++;
+            } else {
+                has_wrong_bit = true;
+            }
+        }
+        total_blocks += 1;
+        if (!has_wrong_bit) {
+            correct_blocks += 1;
+        }
+    }
+    REQUIRE(correct_bits / (float)total_bits > 0.99);
 }

@@ -4,17 +4,20 @@
 namespace hitdsp {
 namespace ecc {
 
-void Ldpc::Init(const ::std::vector<::std::vector<int>> &base_graph, int z) {
+void Ldpc::Init(const ::std::vector<::std::vector<int>> &base_graph, int z, int max_iter) {
     base_graph_ = base_graph;
     z_ = z;
     m_ = base_graph.size();
     n_ = base_graph[0].size();
     k_ = n_ - m_;
+    max_iter_ = max_iter;
     col_weights_ = ::std::vector<int>(n_, 0);
     row_weights_ = ::std::vector<int>(m_, 0);
     row_mat_.resize(m_);
     col_mat_.resize(n_);
     int index = 0;
+    slen_ = 0;
+    max_row_weights_ = 0;
     for (size_t ridx = 0; ridx < base_graph.size(); ++ridx) {
         const ::std::vector<int> &row_tmp = base_graph[ridx];
         assert(n_ == row_tmp.size());
@@ -24,8 +27,12 @@ void Ldpc::Init(const ::std::vector<::std::vector<int>> &base_graph, int z) {
                 row_weights_[ridx]++;
                 row_mat_[ridx].push_back(index);
                 col_mat_[cidx].push_back(index);
+                slen_++;
             }
             index++;
+        }
+        if (row_weights_[ridx] > max_row_weights_) {
+            max_row_weights_ = row_weights_[ridx];
         }
     }
 }
@@ -77,6 +84,60 @@ void Ldpc::Decode(const uint8_t *symbols, uint8_t *data, int data_bits) {
 }
 
 void Ldpc::Decode(const float *symbols, uint8_t *data, int data_bits) {
+    int kbits = k_ * z_;
+    int nbits = n_ * z_;
+    ::std::vector<::std::vector<float>> treg(max_row_weights_, ::std::vector<float>(z_, 0));
+    ::std::vector<::std::vector<float>> r(slen_, ::std::vector<float>(z_, 0));
+    ::std::vector<float> llr(symbols, symbols + nbits);
+    for (int iter_idx = 0; iter_idx < max_iter_; ++iter_idx) {
+        int ri = 0;
+        for (int midx = 0; midx < m_; ++midx) {
+            int ti = 0;
+            for (int cidx = 0; cidx < n_; ++cidx) {
+                if (base_graph_[midx][cidx] == -1) {
+                    continue;
+                }
+                ti++;
+                ri++;
+                for (int zidx = 0; zidx < z_; ++zidx) {
+                    llr[cidx * z_ + zidx] -= r[ri - 1][zidx];
+                }
+                MulSh<float>(&llr[cidx * z_], &treg[ti - 1][0], base_graph_[midx][cidx]);
+            }
+            ::std::vector<::std::pair<::std::pair<int, float>, float>> min2s = Minimum<float>(treg, ti);
+            ::std::vector<int> signs = Sign<float>(treg, ti);
+            for (int tidx = 0; tidx < ti; ++tidx) {
+                for (int zidx = 0; zidx < z_; ++zidx) {
+                    int tmp_sign = treg[tidx][zidx] > 0 ? 1 : -1;
+                    treg[tidx][zidx] = min2s[zidx].first.second;
+                    if (tidx == min2s[zidx].first.first) {
+                        treg[tidx][zidx] = min2s[zidx].second;
+                    }
+                    treg[tidx][zidx] *= signs[zidx] * tmp_sign;
+                }
+            }
+            ri -= ti;
+            ti = 0;
+            for (int cidx = 0; cidx < n_; ++cidx) {
+                if (base_graph_[midx][cidx] == -1) {
+                    continue;
+                }
+                ri++;
+                ti++;
+                MulSh<float>(&treg[ti - 1][0], &r[ri - 1][0], z_ - base_graph_[midx][cidx]);
+                for (int zidx = 0; zidx < z_; ++zidx) {
+                    llr[cidx * z_ + zidx] += r[ri - 1][zidx];
+                }
+            }
+        }
+    }
+    for (int idx = 0; idx < kbits; ++idx) {
+        if (llr[idx] < 0) {
+            data[idx] = 1;
+        } else {
+            data[idx] = 0;
+        }
+    }
 }
 
 bool Ldpc::CheckLdpc(const uint8_t *cw) const {
@@ -96,22 +157,6 @@ bool Ldpc::CheckLdpc(const uint8_t *cw) const {
         }
     }
     return true;
-}
-
-void Ldpc::MulSh(const uint8_t *input, uint8_t *output, int k) const {
-    if (k == -1) {
-        for (int idx = 0; idx < z_; ++idx) {
-            output[idx] = 0;
-        }
-    } else {
-        int index = 0;
-        for (int idx = k; idx < z_; ++idx) {
-            output[index++] = input[idx];
-        }
-        for (int idx = 0; idx < k; ++idx) {
-            output[index++] = input[idx];
-        }
-    }
 }
 
 HITDSP_REGISTER_BED(Ldpc);
